@@ -203,13 +203,21 @@ module.exports = async (ronzz, m, mek) => {
               pengambilan: '',
               diambilOleh: '',
               pembayaran: '',
-              ambilJam: ''
+              ambilJam: '',
+              complete: false
             }
             for (const line of lines) {
               const [keyRaw, ...rest] = line.split(':')
               if (!keyRaw || rest.length === 0) continue
-              const key = keyRaw.trim().toLowerCase()
+              // Normalize key by removing common decorations (e.g., *, _, -, emojis) and extra spaces
+              const key = keyRaw
+                .trim()
+                .toLowerCase()
+                .replace(/[\*`_~\-\p{Emoji_Presentation}\p{Emoji}\p{Extended_Pictographic}]/gu, '')
+                .replace(/\s+/g, ' ')
+                .trim()
               const value = rest.join(':').trim()
+                .replace(/^[\-*`_~]+\s*/, '') // leading decorations before value
               if (key === 'nama') result.nama = value
               else if (key === 'pesanan') result.pesanan = value
               else if (key === 'add on' || key === 'addon' || key === 'add-on') result.addon = value
@@ -219,9 +227,7 @@ module.exports = async (ronzz, m, mek) => {
               else if (key === 'ambil jam' || key === 'jam') result.ambilJam = value
             }
             // Wajib semua kecuali Add On
-            if (!result.nama || !result.pesanan || !result.pengambilan || !result.diambilOleh || !result.pembayaran || !result.ambilJam) {
-              return null
-            }
+            result.complete = !!(result.nama && result.pesanan && result.pengambilan && result.diambilOleh && result.pembayaran && result.ambilJam)
             return result
           }
 
@@ -272,10 +278,12 @@ module.exports = async (ronzz, m, mek) => {
           // If user sends any non-command text and no form expected yet, send template
           const isCommand = typeof command === 'string' && command.length > 0 && prefix && chats.startsWith(prefix)
           if (userState.step === 'idle') {
-            if ((budy || chats) && !isCommand) {
+            if ( (budy || chats) && !isCommand) {
               const textLower = String(chats || budy || '').toLowerCase()
               const triggers = Array.isArray(global.orderTriggers) ? global.orderTriggers : ['halo kak','kak','mau order','order','beli','pesen','pesan','halo']
-              const shouldPrompt = triggers.some(t => textLower.includes(t))
+              // Ignore trigger if user pasted the auto template header
+              const containsAutoHeader = /\[\s*p(es)?an\s+otomatis\s*\]/i.test(textLower) || /format order serasa/i.test(textLower)
+              const shouldPrompt = !containsAutoHeader && triggers.some(t => textLower.includes(t))
               if (!shouldPrompt) {
                 // Ignore non-trigger chat completely
               } else {
@@ -291,7 +299,13 @@ module.exports = async (ronzz, m, mek) => {
 
             // If user sends trigger again while in awaiting_form, resend template and refresh session
             const reTriggerList = Array.isArray(global.orderTriggers) ? global.orderTriggers : ['halo kak','kak','mau order','order','beli','pesen','pesan','halo']
-            if (reTriggerList.some(t => textLower.includes(t))) {
+            // Only treat as retrigger when message is short and matches whole word/phrase
+            const isRetrigger = !(/\[\s*p(es)?an\s+otomatis\s*\]/i.test(textLower) || /format order serasa/i.test(textLower)) && reTriggerList.some(t => {
+              const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+              const re = new RegExp(`(^|\\s)${escaped}(\\s|$)`, 'i')
+              return re.test(textLower)
+            }) && (textLower.length <= 30)
+            if (isRetrigger) {
               const compactTpl = global.orderFormCompactTemplate || global.orderFormTemplate || 'Silakan kirim format order.'
               await reply(compactTpl)
               global.db.data.intakeState[userId] = { step: 'awaiting_form', promptedAt: Date.now() }
@@ -309,7 +323,7 @@ module.exports = async (ronzz, m, mek) => {
             }
 
             // Only attempt to parse when the message looks like the structured form
-            const looksLikeForm = /(\b(nama|pesanan|add\s*-?\s*on|addon|pengambilan|diambil(\s*oleh)?|pembayaran|ambil\s*jam|jam)\b\s*:)/i.test(chats || budy || '') || /:\s*.+/.test(chats || budy || '')
+            const looksLikeForm = /(^|\n)\s*[\*`_~\-]*\s*(nama|pesanan|add\s*-?\s*on|addon|pengambilan|diambil(\s*oleh)?|pembayaran|ambil\s*jam|jam)\s*:/i.test(chats || budy || '') || /:\s*.+/.test(chats || budy || '')
             if (!looksLikeForm) {
               // Ignore casual messages while awaiting form to avoid spamming the user
               return
@@ -317,7 +331,17 @@ module.exports = async (ronzz, m, mek) => {
 
             // Try to parse the incoming message as order form
             const parsed = parseOrderForm(chats || budy)
-            if (!parsed) {
+            if (!parsed || !parsed.complete) {
+              // Jika pengambilan diisi tapi tidak termasuk opsi, beri tahu pilihan yang valid
+              if (parsed && parsed.pengambilan) {
+                const checkPickup = resolvePickupGroup(parsed.pengambilan)
+                if (checkPickup && checkPickup.error === 'invalid_option') {
+                  await reply(
+                    `Pengambilan tidak valid. Pilihan yang tersedia: ${Array.isArray(global.tenantPickupOptions) ? global.tenantPickupOptions.join(', ') : '-'}`
+                  )
+                  return
+                }
+              }
               const compactTpl = global.orderFormCompactTemplate || global.orderFormTemplate || 'Silakan kirim format order.'
               await reply(`Format tidak sesuai. Mohon ikuti contoh berikut:\n\n${compactTpl}`)
               return
@@ -386,7 +410,7 @@ module.exports = async (ronzz, m, mek) => {
               } catch (e2) {
                 console.error('[IntakeFlow] Gagal simpan order:', e2.message)
               }
-              await reply('Terima kasih! Pesanan kamu sudah diteruskan ke tenant terkait. Mohon tunggu konfirmasi.')
+              await reply('Terima kasih! Pesanan kamu sudah diteruskan ke Cabang terkait. Anda dapat mengambil pesanan sesuai jam, Terimakasih.')
             } catch (e) {
               await reply('Gagal meneruskan pesan ke grup tenant. Coba lagi nanti atau hubungi admin.')
             }

@@ -29,6 +29,13 @@
       "antilink2": false,
       "sDone": "",
       "sProses": ""
+    },
+    "120363376002455796@g.us": {
+      "welcome": false,
+      "antilink": false,
+      "antilink2": false,
+      "sDone": "",
+      "sProses": ""
     }
   },
   "users": {
@@ -95,6 +102,18 @@
     "62881025473545@s.whatsapp.net": {
       "saldo": 0,
       "role": "bronze"
+    },
+    "6289520884490@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6281216786477@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6281328643496@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
     }
   },
   "sewa": {},
@@ -127,10 +146,6 @@
     "6288216346309@s.whatsapp.net": {
       "step": "awaiting_form",
       "promptedAt": 1759326874495
-    },
-    "6281389592985@s.whatsapp.net": {
-      "step": "awaiting_form",
-      "promptedAt": 1759327644111
     },
     "62895364781857@s.whatsapp.net": {
       "step": "awaiting_form",
@@ -182,6 +197,66 @@
       "diambilOleh": "Sendiri",
       "pembayaran": "Cash",
       "ambilJam": "00.00"
+    },
+    {
+      "createdAt": 1759328074003,
+      "tanggal": "01 Oktober 2025",
+      "jam": "21:14:30",
+      "customer": "6281389592985@s.whatsapp.net",
+      "customerNumber": "6281389592985",
+      "groupJid": "120363376002455796@g.us",
+      "pengambilan": "MOJOSONGO",
+      "nama": "Nicola - Bot",
+      "pesanan": "Samyang Bakar",
+      "addon": "",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Cash",
+      "ambilJam": "7 pagi"
+    },
+    {
+      "createdAt": 1759328107087,
+      "tanggal": "01 Oktober 2025",
+      "jam": "21:15:04",
+      "customer": "6281389592985@s.whatsapp.net",
+      "customerNumber": "6281389592985",
+      "groupJid": "120363421035918144@g.us",
+      "pengambilan": "UMS",
+      "nama": "Nicola - Bot",
+      "pesanan": "Samyang Bakar",
+      "addon": "",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Cash",
+      "ambilJam": "7 pagi"
+    },
+    {
+      "createdAt": 1759328247055,
+      "tanggal": "01 Oktober 2025",
+      "jam": "21:17:24",
+      "customer": "6281389592985@s.whatsapp.net",
+      "customerNumber": "6281389592985",
+      "groupJid": "120363394353254819@g.us",
+      "pengambilan": "CEMANI",
+      "nama": "Nicola - Bot",
+      "pesanan": "Samyang Bakar",
+      "addon": "",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Cash",
+      "ambilJam": "7 pagi"
+    },
+    {
+      "createdAt": 1759328310900,
+      "tanggal": "01 Oktober 2025",
+      "jam": "21:18:28",
+      "customer": "6281389592985@s.whatsapp.net",
+      "customerNumber": "6281389592985",
+      "groupJid": "120363376002455796@g.us",
+      "pengambilan": "MOJOSONGO",
+      "nama": "Jangan gelut gitu dong kak",
+      "pesanan": "Samyang Bakar",
+      "addon": "",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Cash",
+      "ambilJam": "7 pagi"
     }
   ],
   "orkut": {
