@@ -1,0 +1,194 @@
+{
+  "list": [],
+  "testi": [],
+  "chat": {
+    "120363153300767222@g.us": {
+      "welcome": false,
+      "antilink": false,
+      "antilink2": false,
+      "sDone": "",
+      "sProses": ""
+    },
+    "120363197823409681@g.us": {
+      "welcome": false,
+      "antilink": false,
+      "antilink2": false,
+      "sDone": "",
+      "sProses": ""
+    },
+    "6281252377972-1635740222@g.us": {
+      "welcome": false,
+      "antilink": false,
+      "antilink2": false,
+      "sDone": "",
+      "sProses": ""
+    },
+    "120363421035918144@g.us": {
+      "welcome": false,
+      "antilink": false,
+      "antilink2": false,
+      "sDone": "",
+      "sProses": ""
+    }
+  },
+  "users": {
+    "62895637844400@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "628815973913@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6289638347099@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6288216346309@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6289622660789@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6287817885998@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "62895612459310@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6287887842985@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6281389592985@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "62895331819508@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6289529021755@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "628974543090@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6281944599913@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "15431851081939@lid": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "62895364781857@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "62881025473545@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    }
+  },
+  "sewa": {},
+  "profit": {
+    "bronze": 1000,
+    "silver": 500,
+    "gold": 200
+  },
+  "topup": {},
+  "type": "persen",
+  "setting": {
+    "628974543090@s.whatsapp.net": {
+      "autoread": true,
+      "autoketik": false,
+      "anticall": true
+    }
+  },
+  "deposit": {},
+  "produk": {},
+  "order": {},
+  "transaksi": [],
+  "persentase": {
+    "feeDepo": 2,
+    "bronze": 2,
+    "silver": 1,
+    "gold": 1
+  },
+  "customProfit": {},
+  "intakeState": {
+    "6288216346309@s.whatsapp.net": {
+      "step": "awaiting_form",
+      "promptedAt": 1759326874495
+    },
+    "6281389592985@s.whatsapp.net": {
+      "step": "awaiting_form",
+      "promptedAt": 1759327644111
+    },
+    "62895364781857@s.whatsapp.net": {
+      "step": "awaiting_form",
+      "promptedAt": 1759327301145
+    }
+  },
+  "orders": [
+    {
+      "createdAt": 1759325717227,
+      "tanggal": "01 Oktober 2025",
+      "jam": "20:35:15",
+      "customer": "6281389592985@s.whatsapp.net",
+      "customerNumber": "6281389592985",
+      "groupJid": "120363376002455796@g.us",
+      "pengambilan": "MOJOSONGO",
+      "nama": "alya",
+      "pesanan": "mentai isi 6 2 porsi, mentai isi 3 1 porsi",
+      "addon": "chili oil 2",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Transfer",
+      "ambilJam": "21.00"
+    },
+    {
+      "createdAt": 1759326912361,
+      "tanggal": "01 Oktober 2025",
+      "jam": "20:55:07",
+      "customer": "6281389592985@s.whatsapp.net",
+      "customerNumber": "6281389592985",
+      "groupJid": "120363421035918144@g.us",
+      "pengambilan": "UMS",
+      "nama": "Nicola - Test Bot",
+      "pesanan": "Samyang",
+      "addon": "Pedas",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Transfer",
+      "ambilJam": "pagi"
+    },
+    {
+      "createdAt": 1759327463382,
+      "tanggal": "01 Oktober 2025",
+      "jam": "21:04:19",
+      "customer": "6285134796835@s.whatsapp.net",
+      "customerNumber": "6285134796835",
+      "groupJid": "120363394353254819@g.us",
+      "pengambilan": "CEMANI",
+      "nama": "bila",
+      "pesanan": "mentai",
+      "addon": "",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Cash",
+      "ambilJam": "00.00"
+    }
+  ],
+  "orkut": {
+    "username": "",
+    "authToken": ""
+  },
+  "unik": [
+    "0"
+  ]
+}
