@@ -114,6 +114,14 @@
     "6281328643496@s.whatsapp.net": {
       "saldo": 0,
       "role": "bronze"
+    },
+    "62895422605032@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
+    },
+    "6288219673807@s.whatsapp.net": {
+      "saldo": 0,
+      "role": "bronze"
     }
   },
   "sewa": {},
@@ -143,10 +151,6 @@
   },
   "customProfit": {},
   "intakeState": {
-    "6288216346309@s.whatsapp.net": {
-      "step": "awaiting_form",
-      "promptedAt": 1759326874495
-    },
     "62895364781857@s.whatsapp.net": {
       "step": "awaiting_form",
       "promptedAt": 1759327301145
@@ -257,6 +261,36 @@
       "diambilOleh": "Sendiri",
       "pembayaran": "Cash",
       "ambilJam": "7 pagi"
+    },
+    {
+      "createdAt": 1759328706065,
+      "tanggal": "01 Oktober 2025",
+      "jam": "21:25:04",
+      "customer": "6281389592985@s.whatsapp.net",
+      "customerNumber": "6281389592985",
+      "groupJid": "120363376002455796@g.us",
+      "pengambilan": "MOJOSONGO",
+      "nama": "Jangan gelut gitu dong kak",
+      "pesanan": "Samyang Bakar",
+      "addon": "",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Cash",
+      "ambilJam": "7 pagi"
+    },
+    {
+      "createdAt": 1759328768756,
+      "tanggal": "01 Oktober 2025",
+      "jam": "21:26:07",
+      "customer": "6288216346309@s.whatsapp.net",
+      "customerNumber": "6288216346309",
+      "groupJid": "120363376002455796@g.us",
+      "pengambilan": "MOJOSONGO",
+      "nama": "owek",
+      "pesanan": "owek",
+      "addon": "owek",
+      "diambilOleh": "Sendiri",
+      "pembayaran": "Transfer",
+      "ambilJam": "jam 3 pagi"
     }
   ],
   "orkut": {
