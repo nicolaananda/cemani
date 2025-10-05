@@ -32,6 +32,8 @@ const BASE_QRIS_DANA = "00020101021126570011id.bmri.livinmerchant.WWW01189360091
 const usePg = String(process.env.USE_PG || '').toLowerCase() === 'true'
 const { core, isProduction } = require('./config/midtrans');
 const USE_POLLING = true; // true = pakai polling status Midtrans; false = andalkan webhook saja
+const FEATURE_DISABLE_TOPUP = true; // Nonaktifkan fitur topup/deposit/saldo/listharga/upgrade/buy/stok
+const FEATURE_ONLY_INTAKE = true; // Hanya jalankan alur template order DM → forward ke grup
 
 // Performance optimization: Cache for user saldo
 const saldoCache = new Map();
@@ -112,7 +114,7 @@ module.exports = async (ronzz, m, mek) => {
       return [...text.matchAll(/@([0-9]{5,16}|0)/g)].map(v => v[1] + '@s.whatsapp.net')
     }
 
-    const reply = (teks, options = {}) => { ronzz.sendMessage(from, { text: teks, ...options }, { quoted: m }) }
+    const reply = (teks, options = {}) => ronzz.sendMessage(from, { text: teks, ...options }, { quoted: m })
     let cachedThumbnailBuffer = null
     function getThumbnailBuffer() {
       if (!cachedThumbnailBuffer) {
@@ -195,7 +197,8 @@ module.exports = async (ronzz, m, mek) => {
           // Helper: parse order form from free text
           function parseOrderForm(text) {
             if (!text) return null
-            const lines = String(text).split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+            const rawLines = String(text).split(/\r?\n/)
+            const lines = rawLines.map(l => l.trim()).filter(Boolean)
             const result = {
               nama: '',
               pesanan: '',
@@ -206,25 +209,40 @@ module.exports = async (ronzz, m, mek) => {
               ambilJam: '',
               complete: false
             }
+            let currentKey = null
             for (const line of lines) {
-              const [keyRaw, ...rest] = line.split(':')
-              if (!keyRaw || rest.length === 0) continue
-              // Normalize key by removing common decorations (e.g., *, _, -, emojis) and extra spaces
-              const key = keyRaw
-                .trim()
-                .toLowerCase()
-                .replace(/[\*`_~\-\p{Emoji_Presentation}\p{Emoji}\p{Extended_Pictographic}]/gu, '')
-                .replace(/\s+/g, ' ')
-                .trim()
-              const value = rest.join(':').trim()
-                .replace(/^[\-*`_~]+\s*/, '') // leading decorations before value
-              if (key === 'nama') result.nama = value
-              else if (key === 'pesanan') result.pesanan = value
-              else if (key === 'add on' || key === 'addon' || key === 'add-on') result.addon = value
-              else if (key === 'pengambilan') result.pengambilan = value
-              else if (key === 'diambil oleh' || key === 'diambil') result.diambilOleh = value
-              else if (key === 'pembayaran') result.pembayaran = value
-              else if (key === 'ambil jam' || key === 'jam') result.ambilJam = value
+              const hasColon = line.includes(':')
+              if (hasColon) {
+                const [keyRaw, ...rest] = line.split(':')
+                if (!keyRaw || rest.length === 0) continue
+                // Normalize key by removing common decorations (e.g., *, _, -, emojis) and extra spaces
+                const key = keyRaw
+                  .trim()
+                  .toLowerCase()
+                  .replace(/[\*`_~\-\p{Emoji_Presentation}\p{Emoji}\p{Extended_Pictographic}]/gu, '')
+                  .replace(/\s+/g, ' ')
+                  .trim()
+                const value = rest.join(':').trim()
+                  .replace(/^[\-\*`_~]+\s*/, '') // leading decorations before value
+                currentKey = key
+                if (key === 'nama') result.nama = value
+                else if (key === 'pesanan') result.pesanan = value
+                else if (key === 'add on' || key === 'addon' || key === 'add-on') result.addon = value
+                else if (key === 'pengambilan') result.pengambilan = value
+                else if (key === 'diambil oleh' || key === 'diambil') result.diambilOleh = value
+                else if (key === 'pembayaran') result.pembayaran = value
+                else if (key === 'ambil jam' || key === 'jam') result.ambilJam = value
+                else currentKey = null
+                continue
+              }
+              // Continuation lines (e.g., bullet items) for previous key
+              if (currentKey === 'pesanan') {
+                const cont = line.replace(/^[\-•\*·\s]+/, '').trim()
+                if (cont) result.pesanan = result.pesanan ? `${result.pesanan}, ${cont}` : cont
+              } else if (currentKey === 'add on' || currentKey === 'addon' || currentKey === 'add-on') {
+                const cont = line.replace(/^[\-•\*·\s]+/, '').trim()
+                if (cont) result.addon = result.addon ? `${result.addon}, ${cont}` : cont
+              }
             }
             // Wajib semua kecuali Add On
             result.complete = !!(result.nama && result.pesanan && result.pengambilan && result.diambilOleh && result.pembayaran && result.ambilJam)
@@ -427,6 +445,9 @@ module.exports = async (ronzz, m, mek) => {
       console.error('[IntakeFlow] Error:', e.message)
     }
     // ====== End Intake Flow ======
+    if (FEATURE_ONLY_INTAKE) {
+      return;
+    }
 
     async function pepe(media) {
       const jimp = await jimp_1.read(media)
@@ -625,7 +646,7 @@ module.exports = async (ronzz, m, mek) => {
     }
     expiredCheck(ronzz, m, groupId)
 
-    if (db.data.topup[sender]) {
+    if (!FEATURE_DISABLE_TOPUP && db.data.topup[sender]) {
       if (!fromMe) {
         if (db.data.topup[sender].session == "INPUT-TUJUAN") {
           if (chats == "") return
@@ -1020,6 +1041,11 @@ module.exports = async (ronzz, m, mek) => {
       }
     }
 
+    // Short-circuit commands yang dinonaktifkan
+    if (["payqris","paywallet","deposit","saldo","listharga","upgrade","buy","stok"].includes(command)) {
+      return reply('Fitur ini sementara dinonaktifkan.');
+    }
+
     if (command === "payqris") {
       if (!db.data.deposit[sender]) {
         db.data.deposit[sender] = {
@@ -1058,7 +1084,7 @@ module.exports = async (ronzz, m, mek) => {
       }
     }
 
-    if (db.data.deposit[sender]) {
+    if (!FEATURE_DISABLE_TOPUP && db.data.deposit[sender]) {
       if (!m.key.fromMe) {
         if (db.data.deposit[sender].session === "amount") {
           if (isNaN(chats)) return reply("Masukan hanya angka ya")
