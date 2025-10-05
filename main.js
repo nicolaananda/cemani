@@ -215,11 +215,13 @@ async function startronzz() {
   autoBackup();
   setInterval(autoBackup, Number(jamBackup) * 60 * 60 * 1000);
 
+  // Silence incoming call offers; no auto-replies or blocks
   ronzz.ws.on('CB:call', async (json) => {
-    const callerId = json.content[0].attrs['call-creator']
-    if (db.data.setting[ronzz.user?.["id"]["split"](":")[0] + "@s.whatsapp.net"].anticall && json.content[0].tag == 'offer') {
-      ronzz.sendMessage(callerId, { text: `Kamu telah di blok oleh bot, karena kamu menelpon bot!!\n\nJika tidak sengaja silahkan hubungi owner agar dibuka blocknya!!\nNomor owner : wa.me/${ownerNomer}` })
-    }
+    try {
+      const tag = json?.content?.[0]?.tag
+      if (tag !== 'offer') return
+      // intentionally do nothing
+    } catch {}
   })
 
   ronzz.ev.on('group-participants.update', async (update) => {
