@@ -260,15 +260,8 @@ module.exports = async (ronzz, m, mek) => {
               .trim()
             const options = Array.isArray(global.tenantPickupOptions) ? global.tenantPickupOptions : []
             const groups = global.tenantGroups || {}
-            // Try exact case-insensitive match first
-            let matched = options.find(opt => opt.toLowerCase() === normalized)
-            if (!matched) {
-              // Try partial contains match (word-based)
-              matched = options.find(opt => {
-                const o = opt.toLowerCase()
-                return normalized.length > 0 && (o.includes(normalized) || normalized.includes(o))
-              })
-            }
+            // Require exact case-insensitive match only
+            const matched = options.find(opt => opt.toLowerCase() === normalized)
             if (!matched) return { error: 'invalid_option' }
             const groupTarget = groups[matched]
             if (!groupTarget) return { error: 'missing_group' }
