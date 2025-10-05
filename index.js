@@ -252,10 +252,23 @@ module.exports = async (ronzz, m, mek) => {
           // Helper: normalize pickup option and find target group JID (may be link)
           function resolvePickupGroup(pickupRaw) {
             if (!pickupRaw) return null
-            const normalized = String(pickupRaw).trim().toUpperCase()
+            const raw = String(pickupRaw)
+            const normalized = raw
+              .toLowerCase()
+              .replace(/[^a-z0-9\s]/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim()
             const options = Array.isArray(global.tenantPickupOptions) ? global.tenantPickupOptions : []
             const groups = global.tenantGroups || {}
-            const matched = options.find(opt => opt.toUpperCase() === normalized)
+            // Try exact case-insensitive match first
+            let matched = options.find(opt => opt.toLowerCase() === normalized)
+            if (!matched) {
+              // Try partial contains match (word-based)
+              matched = options.find(opt => {
+                const o = opt.toLowerCase()
+                return normalized.length > 0 && (o.includes(normalized) || normalized.includes(o))
+              })
+            }
             if (!matched) return { error: 'invalid_option' }
             const groupTarget = groups[matched]
             if (!groupTarget) return { error: 'missing_group' }
