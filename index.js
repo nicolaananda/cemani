@@ -396,13 +396,25 @@ module.exports = async (ronzz, m, mek) => {
             }
 
             const customerNumber = userId.split('@')[0]
+            // Format list fields (Pesanan/Add On) as bullet points if multiple items
+            const formatListField = (label, raw) => {
+              const text = String(raw || '').trim()
+              if (!text) return `${label}: -`
+              const parts = text
+                .split(/[\n,]/)
+                .map(s => s.trim())
+                .filter(Boolean)
+              if (parts.length <= 1) return `${label}: ${parts[0] || text}`
+              return `${label}:
+- ${parts.join('\n- ')}`
+            }
             const forwardLines = [
               `[PESAN OTOMATIS] - ${tanggal} ${jamwib} WIB`,
               `JIKA INGIN ORDER SEGERA ISI LENGKAP!`,
               `Format Order Serasa Lidah🥟🥢`,
               parsed.nama ? `Nama: ${parsed.nama}` : `Nama: -`,
-              parsed.pesanan ? `Pesanan: ${parsed.pesanan}` : `Pesanan: -`,
-              parsed.addon ? `Add On: ${parsed.addon}` : `Add On: -`,
+              formatListField('Pesanan', parsed.pesanan),
+              formatListField('Add On', parsed.addon),
               `Pengambilan: ${option}`,
               parsed.diambilOleh ? `Diambil oleh: ${parsed.diambilOleh}` : `Diambil oleh: -`,
               parsed.pembayaran ? `Pembayaran: ${parsed.pembayaran}` : `Pembayaran: -`,
