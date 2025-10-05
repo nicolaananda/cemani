@@ -219,9 +219,6 @@ async function startronzz() {
     const callerId = json.content[0].attrs['call-creator']
     if (db.data.setting[ronzz.user?.["id"]["split"](":")[0] + "@s.whatsapp.net"].anticall && json.content[0].tag == 'offer') {
       ronzz.sendMessage(callerId, { text: `Kamu telah di blok oleh bot, karena kamu menelpon bot!!\n\nJika tidak sengaja silahkan hubungi owner agar dibuka blocknya!!\nNomor owner : wa.me/${ownerNomer}` })
-      setTimeout(() => {
-        ronzz.updateBlockStatus(callerId, 'block')
-      }, 1000)
     }
   })
 
