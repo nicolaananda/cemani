@@ -40,10 +40,4 @@ function backupDatabase() {
   }
 }
 
-// Backup setiap 1 jam
-setInterval(backupDatabase, 60 * 60 * 1000);
-
-// Backup saat startup
-backupDatabase();
-
 module.exports = { backupDatabase }; 

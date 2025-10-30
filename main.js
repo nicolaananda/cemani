@@ -212,8 +212,7 @@ async function startronzz() {
       console.log("❌ Error saat membuat backup:", err);
     }
   }
-  autoBackup();
-  setInterval(autoBackup, Number(jamBackup) * 60 * 60 * 1000);
+  console.log('ℹ️ Auto-backup disabled');
 
   // Silence incoming call offers; no auto-replies or blocks
   ronzz.ws.on('CB:call', async (json) => {
