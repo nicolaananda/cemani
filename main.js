@@ -7,6 +7,8 @@ const fs = require("fs");
 const figlet = require("figlet")
 const PhoneNumber = require('awesome-phonenumber')
 const moment = require('moment')
+const momentTz = require('moment-timezone')
+const cron = require("node-cron")
 const time = moment(new Date()).format('HH:mm:ss DD/MM/YYYY')
 const yargs = require('yargs/yargs')
 const { exec, execSync } = require("child_process");
@@ -295,6 +297,182 @@ async function startronzz() {
       return response
     })
   }
+
+  // Simpan reference ronzz di global scope untuk akses dari cron job
+  global.ronzzInstance = ronzz
+
+  // Helper: resolve link invite to JID (sama seperti di index.js)
+  async function resolveGroupJidIfNeeded(groupTarget, ronzzInstance) {
+    try {
+      if (/@g\.us$/.test(groupTarget)) {
+        return groupTarget
+      }
+      // Extract invite code from link
+      const match = String(groupTarget).match(/chat\.whatsapp\.com\/(\w+)/i)
+      if (!match) return null
+      const code = match[1]
+      // Try get info first; if not in group, accept invite
+      let info
+      try {
+        info = await ronzzInstance.groupGetInviteInfo(code)
+      } catch {}
+      if (!info) {
+        try {
+          const jid = await ronzzInstance.groupAcceptInvite(code)
+          return jid || null
+        } catch {
+          return null
+        }
+      }
+      // If have info, prefer id
+      if (info && info.id) return info.id
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  // Fungsi untuk generate rekap pesanan per grup
+  async function generateRekapPesananPerGrup(groupJid, ordersForGroup, pickupName) {
+    try {
+      const today = momentTz.tz('Asia/Jakarta').format('DD MMMM YYYY')
+      
+      if (ordersForGroup.length === 0) {
+        return `*📊 REKAP PESANAN HARI INI*\n\n*Tanggal:* ${today}\n*Cabang:* ${pickupName}\n\n*Tidak ada pesanan hari ini.*`
+      }
+
+      // Generate rekap text
+      let rekapText = `*📊 REKAP PESANAN HARI INI*\n\n`
+      rekapText += `*Tanggal:* ${today}\n`
+      rekapText += `*Cabang:* ${pickupName}\n`
+      rekapText += `*Total Pesanan:* ${ordersForGroup.length}\n\n`
+      rekapText += `━━━━━━━━━━━━━━━━━━━━\n\n`
+
+      // Detail setiap pesanan
+      ordersForGroup.forEach((order, index) => {
+        rekapText += `${index + 1}. *${order.nama || '-'}*\n`
+        rekapText += `   📞 ${order.customerNumber || '-'}\n`
+        rekapText += `   🍽️ ${order.pesanan || '-'}\n`
+        if (order.addon) {
+          rekapText += `   ➕ Add On: ${order.addon}\n`
+        }
+        rekapText += `   👤 Diambil oleh: ${order.diambilOleh || '-'}\n`
+        rekapText += `   💳 Pembayaran: ${order.pembayaran || '-'}\n`
+        rekapText += `   ⏰ Ambil jam: ${order.ambilJam || '-'}\n`
+        rekapText += `   🕐 Order jam: ${order.jam || '-'}\n\n`
+      })
+
+      rekapText += `━━━━━━━━━━━━━━━━━━━━\n\n`
+      rekapText += `*📈 RINGKASAN*\n`
+      rekapText += `• Total Pesanan: ${ordersForGroup.length}\n`
+      rekapText += `• Cabang: ${pickupName}\n`
+
+      return rekapText
+    } catch (error) {
+      console.error('[RekapPesanan] Error:', error)
+      return `*❌ Error saat generate rekap:*\n${error.message}`
+    }
+  }
+
+  // Fungsi untuk mengirim rekap ke masing-masing grup
+  async function kirimRekapPesanan() {
+    try {
+      if (!global.ronzzInstance) {
+        console.log('[RekapPesanan] Bot belum terhubung, skip rekap')
+        return
+      }
+
+      const today = momentTz.tz('Asia/Jakarta').format('DD MMMM YYYY')
+      const orders = db.data.orders || []
+      const ronzz = global.ronzzInstance
+      
+      // Filter pesanan hari ini berdasarkan tanggal
+      const ordersToday = orders.filter(order => {
+        return order.tanggal === today
+      })
+
+      if (ordersToday.length === 0) {
+        console.log('[RekapPesanan] Tidak ada pesanan hari ini')
+        return
+      }
+
+      // Group pesanan berdasarkan groupJid
+      const ordersByGroup = {}
+      ordersToday.forEach(order => {
+        const groupJid = order.groupJid
+        if (!groupJid) return
+        
+        if (!ordersByGroup[groupJid]) {
+          ordersByGroup[groupJid] = {
+            orders: [],
+            pickup: order.pengambilan || 'Tidak diketahui'
+          }
+        }
+        ordersByGroup[groupJid].orders.push(order)
+        // Update pickup name jika belum ada
+        if (!ordersByGroup[groupJid].pickup || ordersByGroup[groupJid].pickup === 'Tidak diketahui') {
+          ordersByGroup[groupJid].pickup = order.pengambilan || 'Tidak diketahui'
+        }
+      })
+
+      // Kirim rekap ke masing-masing grup
+      for (const [groupTarget, groupData] of Object.entries(ordersByGroup)) {
+        try {
+          // Resolve group JID jika perlu (handle link atau JID langsung)
+          let groupJid = await resolveGroupJidIfNeeded(groupTarget, ronzz)
+          if (!groupJid) {
+            // Jika gagal resolve, coba langsung pakai groupTarget
+            groupJid = groupTarget
+          }
+
+          // Generate rekap untuk grup ini
+          const rekap = await generateRekapPesananPerGrup(
+            groupJid, 
+            groupData.orders, 
+            groupData.pickup
+          )
+
+          // Kirim ke grup
+          await ronzz.sendMessage(groupJid, { text: rekap })
+          console.log(`[RekapPesanan] Rekap berhasil dikirim ke grup ${groupData.pickup} (${groupJid})`)
+        } catch (error) {
+          console.error(`[RekapPesanan] Gagal kirim ke grup ${groupData.pickup}:`, error.message)
+        }
+      }
+
+      console.log(`[RekapPesanan] Selesai mengirim rekap ke ${Object.keys(ordersByGroup).length} grup`)
+    } catch (error) {
+      console.error('[RekapPesanan] Error saat kirim rekap:', error)
+    }
+  }
+
+  // Setup cron job untuk rekap setiap jam 23:30 WIB
+  // Cron format: detik menit jam tanggal bulan hari
+  // 30 23 * * * = setiap hari jam 23:30
+  // Tapi karena kita perlu timezone WIB, kita perlu adjust
+  // node-cron menggunakan server timezone, jadi kita perlu convert ke WIB
+  // WIB = UTC+7, jadi 23:30 WIB = 16:30 UTC
+  // Tapi lebih baik pakai timezone-aware dengan moment
+  
+  // Schedule untuk 23:30 WIB setiap hari
+  // Kita akan check setiap menit dan trigger jika sudah 23:30 WIB
+  let lastRekapDate = null
+  
+  setInterval(() => {
+    const nowWIB = momentTz.tz('Asia/Jakarta')
+    const hour = nowWIB.hour()
+    const minute = nowWIB.minute()
+    const date = nowWIB.format('YYYY-MM-DD')
+    
+    // Check jika sudah jam 23:30 WIB dan belum kirim rekap hari ini
+    if (hour === 23 && minute === 30 && lastRekapDate !== date) {
+      console.log('[RekapPesanan] Trigger rekap pesanan harian')
+      lastRekapDate = date
+      kirimRekapPesanan()
+    }
+  }, 60000) // Check setiap 1 menit
+
+  console.log('✅ Scheduler rekap pesanan aktif - akan berjalan setiap jam 23:30 WIB')
 
   return ronzz
 }
