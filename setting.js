@@ -18,7 +18,7 @@ global.type = "persen" //persen = profit menggunakan persentase || nominal = pro
 
 //Persentase default || Jika type profit menggunakan persentase
 global.bronze = 2 //Persentase keuntungan Bronze
-global.silver = 1,5 //Persentase keuntungan Silver
+global.silver = 1, 5 //Persentase keuntungan Silver
 global.gold = 1 //Persentase keuntungan Gold
 
 //Profit nominal default || Jika type profit menggunakan nominal
@@ -32,13 +32,13 @@ global.uGold = 200000
 
 //Other
 global.botName = "GiHa Smart Bot" //Nama bot
-global.owner = ["6287777657944","6281389592985","6287887842985"] //Ganti agar fitur owner bisa digunakan
+global.owner = ["6287777657944", "6281389592985", "6287887842985"] //Ganti agar fitur owner bisa digunakan
 global.ownerNomer = "6287777657944" //Nomor lu
 global.ownerName = "Owner" //Nama lu
 global.packname = "" //Seterah
 global.author = "Owner" //Seterah
 global.sessionName = "session" //Ngga usah di ganti
-global.linkGroup = ["https://chat.whatsapp.com/L0LR1HBOFKJAiQv5Busd9t?mode=ems_copy_t","https://chat.whatsapp.com/KwBA0yxcwl0JGpL6uN7L9i?mode=ems_copy_t","https://chat.whatsapp.com/GO2a2ty2n5JAz5b6E9HpEs?mode=ems_copy_c"] //Link gc lu
+global.linkGroup = ["https://chat.whatsapp.com/L0LR1HBOFKJAiQv5Busd9t?mode=ems_copy_t", "https://chat.whatsapp.com/KwBA0yxcwl0JGpL6uN7L9i?mode=ems_copy_t", "https://chat.whatsapp.com/GO2a2ty2n5JAz5b6E9HpEs?mode=ems_copy_c"] //Link gc lu
 
 //Image
 global.thumbnail = "./options/image/payment.jpg"
@@ -65,7 +65,7 @@ global.mess = {
 // lalu cek log/backup database, atau tambahkan command untuk echo group id.
 global.tenantPickupOptions = [
   "MOJOSONGO",
-  "CEMANI",
+  "LAWEYAN",
   "UMS"
 ]
 
@@ -73,7 +73,7 @@ global.tenantGroups = {
   // Kamu bisa isi JID langsung (xxx@g.us) atau link undangan grup WhatsApp.
   // Bot akan mencoba resolve link menjadi JID saat forward.
   "MOJOSONGO": "https://chat.whatsapp.com/IpyqyVemRuV9IIdwFcBznb?mode=ems_wa_t",
-  "CEMANI": "https://chat.whatsapp.com/JPTYnkgmw112toJvbJSdJ8?mode=ems_wa_t",
+  "LAWEYAN": "https://chat.whatsapp.com/JPTYnkgmw112toJvbJSdJ8?mode=ems_wa_t",
   "UMS": "https://chat.whatsapp.com/L3ozeq2p42G1k0WqVBZbrN?mode=ems_wa_t"
 }
 
@@ -150,15 +150,16 @@ const pickupChoices = `Pengambilan: ${global.tenantPickupOptions.join('/')}`
 // Compact template (tanpa penjelasan) untuk prompt singkat / invalid format
 global.orderFormCompactTemplate = (
   "*[PESAN OTOMATIS]*\n" +
-  "JIKA INGIN ORDER SEGERA ISI LENGKAP!\n" +
+  "JIKA INGIN ORDER SEGERA ISI LENGKAP!\n\n" +
   "Format Order Serasa Lidah🥟🥢\n" +
   "Nama: \n" +
   "Pesanan: \n" +
   "Add On: \n" +
-  "Pengambilan: MOJOSONGO/CEMANI/UMS\n" +
-  "Diambil oleh: Sendiri/Ojek Online\n" +
-  "Pembayaran: Transfer/Cash\n" +
-  "Ambil jam: (wajib tulis jam)"
+  "Pengambilan: MOJOSONGO/LAWEYAN/UMS\n" +
+  "Diambil oleh: Sendiri/Driver\n" +
+  "Pembayaran: QRIS/Cash\n" +
+  "Ambil jam: (wajib tulis jam)\n\n" +
+  "*pengambilan by driver dipesan oleh customer"
 )
 
 // Kata pemicu untuk mengirim template order (DM only)
