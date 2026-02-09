@@ -165,7 +165,7 @@ global.orderFormCompactTemplate = (
 // Kata pemicu untuk mengirim template order (DM only)
 // Edit sesuai kebutuhan; bot hanya akan kirim template jika chat mengandung salah satu dari kata ini
 global.orderTriggers = [
-  'halo kak', 'kak', 'mau order', 'order', 'beli', 'pesen', 'pesan', 'halo'
+  'halo kak', 'mau order', 'order', 'beli', 'pesen', 'pesan', 'halo'
 ]
 
 // Kata untuk membatalkan flow order
